@@ -1,0 +1,10 @@
+!.gitignore
+*~
+*.zip
+*.tar
+*.tar.gz
+*.txt.user*
+*.txt
+*.so
+*.a
+*Desktop_Qt_5_7_0_GCC*
