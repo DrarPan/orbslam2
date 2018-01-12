@@ -239,13 +239,13 @@ public:
    * @param filename
    */
   bool loadFromTextFile(const std::string &filename);
-
+  bool loadFromBinaryFile(const std::string &filename);
   /**
    * Saves the vocabulary into a text file
    * @param filename
    */
   void saveToTextFile(const std::string &filename) const;  
-
+  void saveToBinaryFile(const std::string &filename) const;
   /**
    * Saves the vocabulary into a file
    * @param filename
@@ -402,7 +402,7 @@ protected:
    */
   void setNodeWeights(const vector<vector<TDescriptor> > &features);
   
-protected:
+public:
 
   /// Branching factor
   int m_k;
@@ -1379,6 +1379,8 @@ bool TemplatedVocabulary<TDescriptor,F>::loadFromTextFile(const std::string &fil
     {
         string snode;
         getline(f,snode);
+        if(snode.size()==0)
+            break;
         stringstream ssnode;
         ssnode << snode;
 
@@ -1420,7 +1422,63 @@ bool TemplatedVocabulary<TDescriptor,F>::loadFromTextFile(const std::string &fil
     }
 
     return true;
+}
 
+// --------------------------------------------------------------------------
+template<class TDescriptor, class F>
+bool TemplatedVocabulary<TDescriptor,F>::loadFromBinaryFile(const std::string &filename){
+    ifstream f;
+    f.open(filename.c_str(),ios_base::in|ios_base::binary);
+
+    if(f.eof())
+        return false;
+
+    m_words.clear();
+    m_nodes.clear();
+
+    int node_num;
+    int node_size;
+    f.read((char*)&node_num, sizeof(node_num));
+    f.read((char*)&node_size, sizeof(node_size));
+    f.read((char*)&m_k, sizeof(m_k));
+    f.read((char*)&m_L, sizeof(m_L));
+    f.read((char*)&m_scoring, sizeof(m_scoring));
+    f.read((char*)&m_weighting, sizeof(m_weighting));
+
+    createScoringObject();
+    m_words.reserve(pow((double)m_k,(double)m_L+1));
+    m_nodes.clear();
+    m_nodes.resize(node_num);//m_node[0] 0 0 0 0
+
+    int node_id=1;
+    NodeId parent;
+    bool is_leaf=0;
+    cv::Mat desp(1,F::L,CV_8U);
+    double weight;
+    while(!f.eof()){
+        f.read((char*)&parent,sizeof(NodeId));
+        if(f.eof())
+            break;
+        f.read((char*)&is_leaf,sizeof(bool));
+        f.read((char*)desp.data,F::L);
+        f.read((char*)&weight,sizeof(double));
+
+        Node &node=m_nodes[node_id];
+        node.id=node_id;
+        node.parent=parent;
+        node.descriptor=desp.clone();
+        node.weight=weight;
+        m_nodes[parent].children.push_back(node_id);
+        if(is_leaf==1){
+            int wid=m_words.size();
+            node.word_id = wid;
+            m_words.push_back(&node);
+        }else{
+           node.children.reserve(m_k);
+        }
+        node_id++;
+    }
+    return true;
 }
 
 // --------------------------------------------------------------------------
@@ -1448,7 +1506,32 @@ void TemplatedVocabulary<TDescriptor,F>::saveToTextFile(const std::string &filen
     f.close();
 }
 
+//---------------------------------------------------------------------
+template<class TDescriptor, class F>
+void TemplatedVocabulary<TDescriptor,F>::saveToBinaryFile(const std::string &filename) const{
+    fstream f;
+    f.open(filename.c_str(),ios_base::out|ios_base::binary);
+    int node_num=m_nodes.size();
+    int node_size=sizeof(m_nodes[0].parent)+sizeof(bool)+F::L*sizeof(char)+sizeof(float);//parent+is_leaf+descriptor+weight
+    f.write((char*)&node_num,sizeof(node_num));
+    f.write((char*)&node_size,sizeof(node_size));
+    f.write((char*)&m_k, sizeof(m_k));
+    f.write((char*)&m_L, sizeof(m_L));
+    f.write((char*)&m_scoring, sizeof(m_scoring));
+    f.write((char*)&m_weighting, sizeof(m_weighting));
+    for(size_t i=1; i<m_nodes.size();i++){
+        const Node& node = m_nodes[i];
+        f.write((char*)&node.parent,sizeof(node.parent));
+        bool is_leaf=node.isLeaf();
+        f.write((char*)&is_leaf,sizeof(bool));//WARN
+        f.write((char*)node.descriptor.data,F::L);
+        f.write((char*)&node.weight, sizeof(node.weight));
+    }
+    f.close();
+}
+
 // --------------------------------------------------------------------------
+
 
 template<class TDescriptor, class F>
 void TemplatedVocabulary<TDescriptor,F>::save(const std::string &filename) const

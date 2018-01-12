@@ -25,6 +25,8 @@
 #include<chrono>
 
 #include<ros/ros.h>
+#include<ros/package.h>
+
 #include <cv_bridge/cv_bridge.h>
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
@@ -49,24 +51,32 @@ public:
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "RGBD");
-    ros::start();
+    ros::NodeHandle pnh("~");
 
-    if(argc != 3)
-    {
-        cerr << endl << "Usage: rosrun ORB_SLAM2 RGBD path_to_vocabulary path_to_settings" << endl;        
+    string path_to_vocabulary;
+    string path_to_settings;
+
+    if(argc == 1){
+        pnh.param<string>("path_to_vocabulary",path_to_vocabulary,ros::package::getPath("orbslam")+"/data/map_rotate.png");
+        pnh.param<string>("path_to_settings",path_to_settings,ros::package::getPath("orbslam")+"/config/map_rotate.png");
+    }if(argc == 3){
+        path_to_vocabulary=argv[1];
+        path_to_settings=argv[2];
+    }else{
+        cerr << endl << "Usage: rosrun ORB_SLAM2 RGBD path_to_vocabulary path_to_settings" << endl;
         ros::shutdown();
         return 1;
-    }    
+    }
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
-    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::RGBD,true);
+    ORB_SLAM2::System SLAM(path_to_vocabulary,path_to_settings,ORB_SLAM2::System::RGBD,true);
 
     ImageGrabber igb(&SLAM);
 
     ros::NodeHandle nh;
 
     message_filters::Subscriber<sensor_msgs::Image> rgb_sub(nh, "/camera/rgb/image_raw", 1);
-    message_filters::Subscriber<sensor_msgs::Image> depth_sub(nh, "camera/depth_registered/image_raw", 1);
+    message_filters::Subscriber<sensor_msgs::Image> depth_sub(nh, "/camera/depth_registered/image_raw", 1);
     typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Image> sync_pol;
     message_filters::Synchronizer<sync_pol> sync(sync_pol(10), rgb_sub,depth_sub);
     sync.registerCallback(boost::bind(&ImageGrabber::GrabRGBD,&igb,_1,_2));

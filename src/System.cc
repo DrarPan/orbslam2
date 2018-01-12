@@ -51,18 +51,20 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 
     //Check settings file
     cv::FileStorage fsSettings(strSettingsFile.c_str(), cv::FileStorage::READ);
-    if(!fsSettings.isOpened())
-    {
-       cerr << "Failed to open settings file at: " << strSettingsFile << endl;
-       exit(-1);
+    if(!fsSettings.isOpened()){
+        cerr << "Failed to open settings file at: " << strSettingsFile << endl;
+        exit(-1);
     }
-
 
     //Load ORB Vocabulary
     cout << endl << "Loading ORB Vocabulary. This could take a while..." << endl;
-
     mpVocabulary = new ORBVocabulary();
-    bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
+    bool bVocLoad=false;
+    if (strVocFile.find(".txt")!=string::npos)
+        bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
+    else(strVocFile.find(".bin")!=string::npos)
+        bVocLoad = mpVocabulary->loadFromBinaryFile(strVocFile);
+
     if(!bVocLoad)
     {
         cerr << "Wrong path to vocabulary. " << endl;
