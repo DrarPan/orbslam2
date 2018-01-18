@@ -33,6 +33,8 @@
 #include"../../../include/System.h"
 
 #include"ViewerAR.h"
+#include"Camera.h"
+#include"ros/package.h"
 
 using namespace std;
 
@@ -55,19 +57,23 @@ public:
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "Mono");
-    ros::start();
+    ros::init(argc, argv, "Mono_AR");
+    ros::NodeHandle pnh("~");
 
-    if(argc != 3)
-    {
-        cerr << endl << "Usage: rosrun ORB_SLAM2 Mono path_to_vocabulary path_to_settings" << endl;        
-        ros::shutdown();
-        return 1;
+    string path_to_vocabulary;
+    string path_to_settings;
+
+    if(argc == 3){
+        path_to_vocabulary=argv[1];
+        path_to_settings=argv[2];
+    }else{
+        pnh.param<string>("path_to_vocabulary",path_to_vocabulary,ros::package::getPath("orbslam2")+"/vocabulary/ORBvoc.bin");
+        pnh.param<string>("path_to_settings",path_to_settings,ros::package::getPath("orbslam2")+"/config/Asus_default.yaml");
     }
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
-    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,false);
-
+    ORB_SLAM2::Camera::load(path_to_settings);
+    ORB_SLAM2::System SLAM(path_to_vocabulary,path_to_settings,ORB_SLAM2::System::MONOCULAR,NULL,true);
 
     cout << endl << endl;
     cout << "-----------------------" << endl;
@@ -86,10 +92,10 @@ int main(int argc, char **argv)
     ImageGrabber igb(&SLAM);
 
     ros::NodeHandle nodeHandler;
-    ros::Subscriber sub = nodeHandler.subscribe("/camera/image_raw", 1, &ImageGrabber::GrabImage,&igb);
+    ros::Subscriber sub = nodeHandler.subscribe("/camera/rgb/image_raw", 1, &ImageGrabber::GrabImage,&igb);
 
 
-    cv::FileStorage fSettings(argv[2], cv::FileStorage::READ);
+    cv::FileStorage fSettings(path_to_settings, cv::FileStorage::READ);
     bRGB = static_cast<bool>((int)fSettings["Camera.RGB"]);
     float fps = fSettings["Camera.fps"];
     viewerAR.SetFPS(fps);

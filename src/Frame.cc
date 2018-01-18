@@ -21,6 +21,7 @@
 #include "Frame.h"
 #include "Converter.h"
 #include "ORBmatcher.h"
+#include "Camera.h"
 #include <thread>
 
 namespace ORB_SLAM2
@@ -244,6 +245,16 @@ void Frame::AssignFeaturesToGrid()
     }
 }
 
+void Frame::InitializeScaleLevels(){
+    mnScaleLevels = mpORBextractorLeft->GetLevels();
+    mfScaleFactor = mpORBextractorLeft->GetScaleFactor();
+    mfLogScaleFactor = log(mfScaleFactor);
+    mvScaleFactors = mpORBextractorLeft->GetScaleFactors();
+    mvInvScaleFactors = mpORBextractorLeft->GetInverseScaleFactors();
+    mvLevelSigma2 = mpORBextractorLeft->GetScaleSigmaSquares();
+    mvInvLevelSigma2 = mpORBextractorLeft->GetInverseScaleSigmaSquares();
+}
+
 void Frame::ExtractORB(int flag, const cv::Mat &im)
 {
     if(flag==0)
@@ -403,7 +414,7 @@ void Frame::ComputeBoW()
 
 void Frame::UndistortKeyPoints()
 {
-    if(mDistCoef.at<float>(0)==0.0)
+    if(Camera::DistCoef.at<float>(0)==0.0)
     {
         mvKeysUn=mvKeys;
         return;
@@ -419,7 +430,7 @@ void Frame::UndistortKeyPoints()
 
     // Undistort points
     mat=mat.reshape(2);
-    cv::undistortPoints(mat,mat,mK,mDistCoef,cv::Mat(),mK);
+    cv::undistortPoints(mat,mat,Camera::K,Camera::DistCoef,cv::Mat(),Camera::K);
     mat=mat.reshape(1);
 
     // Fill undistorted keypoint vector
@@ -435,7 +446,7 @@ void Frame::UndistortKeyPoints()
 
 void Frame::ComputeImageBounds(const cv::Mat &imLeft)
 {
-    if(mDistCoef.at<float>(0)!=0.0)
+    if(Camera::DistCoef.at<float>(0)!=0.0)
     {
         cv::Mat mat(4,2,CV_32F);
         mat.at<float>(0,0)=0.0; mat.at<float>(0,1)=0.0;
@@ -445,7 +456,7 @@ void Frame::ComputeImageBounds(const cv::Mat &imLeft)
 
         // Undistort corners
         mat=mat.reshape(2);
-        cv::undistortPoints(mat,mat,mK,mDistCoef,cv::Mat(),mK);
+        cv::undistortPoints(mat,mat,Camera::K,Camera::DistCoef,cv::Mat(),Camera::K);
         mat=mat.reshape(1);
 
         mnMinX = min(mat.at<float>(0,0),mat.at<float>(2,0));

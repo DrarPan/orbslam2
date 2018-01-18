@@ -42,10 +42,10 @@ EQUALS = =
 CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/hitrobot/hitrobot_ws/ORB_SLAM2/src/orbslam2/Thirdparty/DBoW2
+CMAKE_SOURCE_DIR = /home/hitrobot/hitrobot_ws/orbslam2/Thirdparty/DBoW2
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/hitrobot/hitrobot_ws/ORB_SLAM2/src/orbslam2/Thirdparty/DBoW2/build
+CMAKE_BINARY_DIR = /home/hitrobot/hitrobot_ws/orbslam2/Thirdparty/DBoW2/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -72,9 +72,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hitrobot/hitrobot_ws/ORB_SLAM2/src/orbslam2/Thirdparty/DBoW2/build/CMakeFiles /home/hitrobot/hitrobot_ws/ORB_SLAM2/src/orbslam2/Thirdparty/DBoW2/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/hitrobot/hitrobot_ws/orbslam2/Thirdparty/DBoW2/build/CMakeFiles /home/hitrobot/hitrobot_ws/orbslam2/Thirdparty/DBoW2/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hitrobot/hitrobot_ws/ORB_SLAM2/src/orbslam2/Thirdparty/DBoW2/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/hitrobot/hitrobot_ws/orbslam2/Thirdparty/DBoW2/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -113,6 +113,19 @@ DBoW2: cmake_check_build_system
 DBoW2/fast:
 	$(MAKE) -f CMakeFiles/DBoW2.dir/build.make CMakeFiles/DBoW2.dir/build
 .PHONY : DBoW2/fast
+
+#=============================================================================
+# Target rules for targets named VocabularyConvertor
+
+# Build rule for target.
+VocabularyConvertor: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 VocabularyConvertor
+.PHONY : VocabularyConvertor
+
+# fast build rule for target.
+VocabularyConvertor/fast:
+	$(MAKE) -f CMakeFiles/VocabularyConvertor.dir/build.make CMakeFiles/VocabularyConvertor.dir/build
+.PHONY : VocabularyConvertor/fast
 
 DBoW2/BowVector.o: DBoW2/BowVector.cpp.o
 .PHONY : DBoW2/BowVector.o
@@ -258,6 +271,30 @@ DUtils/Timestamp.cpp.s:
 	$(MAKE) -f CMakeFiles/DBoW2.dir/build.make CMakeFiles/DBoW2.dir/DUtils/Timestamp.cpp.s
 .PHONY : DUtils/Timestamp.cpp.s
 
+src/VocabularyConvertor.o: src/VocabularyConvertor.cc.o
+.PHONY : src/VocabularyConvertor.o
+
+# target to build an object file
+src/VocabularyConvertor.cc.o:
+	$(MAKE) -f CMakeFiles/VocabularyConvertor.dir/build.make CMakeFiles/VocabularyConvertor.dir/src/VocabularyConvertor.cc.o
+.PHONY : src/VocabularyConvertor.cc.o
+
+src/VocabularyConvertor.i: src/VocabularyConvertor.cc.i
+.PHONY : src/VocabularyConvertor.i
+
+# target to preprocess a source file
+src/VocabularyConvertor.cc.i:
+	$(MAKE) -f CMakeFiles/VocabularyConvertor.dir/build.make CMakeFiles/VocabularyConvertor.dir/src/VocabularyConvertor.cc.i
+.PHONY : src/VocabularyConvertor.cc.i
+
+src/VocabularyConvertor.s: src/VocabularyConvertor.cc.s
+.PHONY : src/VocabularyConvertor.s
+
+# target to generate assembly for a file
+src/VocabularyConvertor.cc.s:
+	$(MAKE) -f CMakeFiles/VocabularyConvertor.dir/build.make CMakeFiles/VocabularyConvertor.dir/src/VocabularyConvertor.cc.s
+.PHONY : src/VocabularyConvertor.cc.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -265,6 +302,7 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... DBoW2"
+	@echo "... VocabularyConvertor"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... DBoW2/BowVector.o"
@@ -285,6 +323,9 @@ help:
 	@echo "... DUtils/Timestamp.o"
 	@echo "... DUtils/Timestamp.i"
 	@echo "... DUtils/Timestamp.s"
+	@echo "... src/VocabularyConvertor.o"
+	@echo "... src/VocabularyConvertor.i"
+	@echo "... src/VocabularyConvertor.s"
 .PHONY : help
 
 

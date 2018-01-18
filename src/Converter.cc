@@ -148,4 +148,15 @@ std::vector<float> Converter::toQuaternion(const cv::Mat &M)
     return v;
 }
 
+cv::Mat Converter::toRotationMat(std::vector<float>& Q){
+    Eigen::Quaterniond q(Q[3],Q[0],Q[1],Q[2]);
+    Eigen::Matrix<double,3,3> m=q.toRotationMatrix();
+    cv::Mat M(3,3,CV_32F);
+    for(int i=0;i<3;i++)
+        for(int j=0; j<3; j++)
+            M.at<float>(i,j) = m(i,j);
+    return M;
+}
+
+
 } //namespace ORB_SLAM

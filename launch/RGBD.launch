@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+    <node pkg="orbslam2" type="RGBD" name="RGBDSLAM" output="screen">
+    	<param name="path_to_vocabulary" value="$(find orbslam2)/vocabulary/ORBvoc.bin"/>
+    	<param name="path_to_settings" value="$(find orbslam2)/config/Asus_default.yaml"/>
+    </node>
+</launch>

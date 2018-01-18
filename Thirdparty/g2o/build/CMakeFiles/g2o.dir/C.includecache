@@ -6,11 +6,11 @@
 
 #IncludeRegexTransform: 
 
-/home/hitrobot/hitrobot_ws/ORB_SLAM2/src/orbslam2/Thirdparty/g2o/g2o/stuff/os_specific.c
+/home/hitrobot/hitrobot_ws/orbslam2/Thirdparty/g2o/g2o/stuff/os_specific.c
 os_specific.h
-/home/hitrobot/hitrobot_ws/ORB_SLAM2/src/orbslam2/Thirdparty/g2o/g2o/stuff/os_specific.h
+/home/hitrobot/hitrobot_ws/orbslam2/Thirdparty/g2o/g2o/stuff/os_specific.h
 
-/home/hitrobot/hitrobot_ws/ORB_SLAM2/src/orbslam2/Thirdparty/g2o/g2o/stuff/os_specific.h
+/home/hitrobot/hitrobot_ws/orbslam2/Thirdparty/g2o/g2o/stuff/os_specific.h
 stdio.h
 -
 stdlib.h

@@ -54,8 +54,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "RGBD");
     ros::NodeHandle pnh("~");
 
-    string path_to_vocabulary;
-    string path_to_settings;
+    string path_to_vocabulary,path_to_settings,path_to_map;
 
     if(argc == 3){
         path_to_vocabulary=argv[1];
@@ -63,11 +62,19 @@ int main(int argc, char **argv)
     }else{
         pnh.param<string>("path_to_vocabulary",path_to_vocabulary,ros::package::getPath("orbslam2")+"/vocabulary/ORBvoc.bin");
         pnh.param<string>("path_to_settings",path_to_settings,ros::package::getPath("orbslam2")+"/config/Asus_default.yaml");
+        pnh.param<string>("path_to_map",path_to_map,ros::package::getPath("orbslam2")+"/map/map.bin");
     }
 
-    // Create SLAM system. It initializes all system threads and gets ready to process frames.
+    ORB_SLAM2::ORBVocabulary voc;
+    voc.loadFromBinaryFile(path_to_vocabulary);
+
     ORB_SLAM2::Camera::load(path_to_settings);
-    ORB_SLAM2::System SLAM(path_to_vocabulary,path_to_settings,ORB_SLAM2::System::RGBD,NULL,true);
+    ORB_SLAM2::Map prev_map;
+    prev_map.load(path_to_map,voc);
+
+    // Create SLAM system. It initializes all system threads and gets ready to process frames.
+
+    ORB_SLAM2::System SLAM(path_to_settings,ORB_SLAM2::System::RGBD,&voc,&prev_map,true);
 
     ImageGrabber igb(&SLAM);
 

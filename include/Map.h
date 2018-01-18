@@ -38,6 +38,12 @@ class KeyFrame;
 class Map
 {
 public:
+    struct ConnectInformation{
+        unsigned long int parent_id;
+        vector<unsigned long int> connect_id;
+        vector<int> weight;
+    };
+public:
     Map();
 
     void AddKeyFrame(KeyFrame* pKF);
@@ -66,6 +72,14 @@ public:
     // This avoid that two points are created simultaneously in separate threads (id conflict)
     std::mutex mMutexPointCreation;
 
+    //function of map saving
+    void writeKeyFrame(ofstream &f, KeyFrame* kf, map<MapPoint *, unsigned long> &mp_idx);
+    void writeMapPoint(ofstream &f, MapPoint* mp);
+    KeyFrame* readKeyFrame(ifstream &f, ORBVocabulary &voc, std::vector<MapPoint *> &amp, ORBextractor* orb_ext, map<unsigned long, ConnectInformation> &map_connection);
+    MapPoint* readMapPoint(ifstream &f);
+
+    bool save(const string &filename);
+    bool load(const string &filename, ORBVocabulary &voc);
 protected:
     std::set<MapPoint*> mspMapPoints;
     std::set<KeyFrame*> mspKeyFrames;

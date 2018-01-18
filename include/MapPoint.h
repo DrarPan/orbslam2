@@ -39,6 +39,7 @@ class Frame;
 class MapPoint
 {
 public:
+    MapPoint(const cv::Mat &Pos, Map* pMap);
     MapPoint(const cv::Mat &Pos, KeyFrame* pRefKF, Map* pMap);
     MapPoint(const cv::Mat &Pos,  Map* pMap, Frame* pFrame, const int &idxF);
 
@@ -47,6 +48,7 @@ public:
 
     cv::Mat GetNormal();
     KeyFrame* GetReferenceKeyFrame();
+    void SetReferenceKeyFrame(KeyFrame *pRefKF);
 
     std::map<KeyFrame*,size_t> GetObservations();
     int Observations();
@@ -112,7 +114,8 @@ public:
 
     static std::mutex mGlobalMutex;
 
-protected:    
+
+protected:
 
      // Position in absolute coordinates
      cv::Mat mWorldPos;

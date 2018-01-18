@@ -3,11 +3,11 @@
 
 # compile C with /usr/bin/cc
 # compile CXX with /usr/bin/c++
-C_FLAGS =   -Wall -W -O3 -DNDEBUG -O3 -march=native -fPIC -I/home/hitrobot/hitrobot_ws/ORB_SLAM2/src/orbslam2/Thirdparty/g2o/core -I/home/hitrobot/hitrobot_ws/ORB_SLAM2/src/orbslam2/Thirdparty/g2o/types -I/home/hitrobot/hitrobot_ws/ORB_SLAM2/src/orbslam2/Thirdparty/g2o/stuff -I/usr/include/eigen3   
+C_FLAGS =   -Wall -W -O3 -DNDEBUG -O3 -march=native -fPIC -I/home/hitrobot/hitrobot_ws/orbslam2/Thirdparty/g2o/core -I/home/hitrobot/hitrobot_ws/orbslam2/Thirdparty/g2o/types -I/home/hitrobot/hitrobot_ws/orbslam2/Thirdparty/g2o/stuff -I/usr/include/eigen3   
 
 C_DEFINES = -DUNIX -Dg2o_EXPORTS
 
-CXX_FLAGS =   -Wall -W -O3 -DNDEBUG -O3 -march=native -fPIC -I/home/hitrobot/hitrobot_ws/ORB_SLAM2/src/orbslam2/Thirdparty/g2o/core -I/home/hitrobot/hitrobot_ws/ORB_SLAM2/src/orbslam2/Thirdparty/g2o/types -I/home/hitrobot/hitrobot_ws/ORB_SLAM2/src/orbslam2/Thirdparty/g2o/stuff -I/usr/include/eigen3   
+CXX_FLAGS =   -Wall -W -O3 -DNDEBUG -O3 -march=native -fPIC -I/home/hitrobot/hitrobot_ws/orbslam2/Thirdparty/g2o/core -I/home/hitrobot/hitrobot_ws/orbslam2/Thirdparty/g2o/types -I/home/hitrobot/hitrobot_ws/orbslam2/Thirdparty/g2o/stuff -I/usr/include/eigen3   
 
 CXX_DEFINES = -DUNIX -Dg2o_EXPORTS
 

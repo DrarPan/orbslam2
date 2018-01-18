@@ -188,7 +188,7 @@ public:
     static bool mbInitialComputations;
 
 
-private:
+public:
 
     // Undistort keypoints given OpenCV distortion parameters.
     // Only for the RGB-D case. Stereo must be already rectified!
@@ -201,6 +201,9 @@ private:
     // Assign keypoints to the grid for speed up feature matching (called in the constructor).
     void AssignFeaturesToGrid();
 
+    void InitializeScaleLevels();
+
+private:
     // Rotation, translation and camera center
     cv::Mat mRcw;
     cv::Mat mtcw;

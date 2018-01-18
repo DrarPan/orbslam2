@@ -59,7 +59,8 @@ public:
 public:
 
     // Initialize the SLAM system. It launches the Local Mapping, Loop Closing and Viewer threads.
-    System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor, const bool bUseViewer = true);
+    System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor, Map* pmap=NULL, const bool bUseViewer = true);
+    System(const string &strVocFile, const eSensor sensor, ORBVocabulary* pvoc=NULL, Map* pmap=NULL, const bool bUseViewer = true);
 
     // Proccess the given stereo frame. Images must be synchronized and rectified.
     // Input images: RGB (CV_8UC3) or grayscale (CV_8U). RGB is converted to grayscale.
@@ -122,6 +123,8 @@ public:
     std::vector<MapPoint*> GetTrackedMapPoints();
     std::vector<cv::KeyPoint> GetTrackedKeyPointsUn();
 
+    void SaveMap(const string &filename);
+    void LoadMap(const string &filename);
 private:
 
     // Input sensor

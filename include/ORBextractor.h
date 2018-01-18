@@ -45,6 +45,13 @@ public:
 class ORBextractor
 {
 public:
+    static int nFeaturesDefault;
+    static float scaleFactorDefault;
+    static int nLevelsDefault;
+    static int fIniThFASTDefault;
+    static int fMinThFASTDefault;
+
+    static int bit_pattern_31_[1024];
     
     enum {HARRIS_SCORE=0, FAST_SCORE=1 };
 
