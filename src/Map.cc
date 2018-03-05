@@ -333,17 +333,21 @@ bool Map::load(const string &filename,ORBVocabulary &voc){
     }
     ORB_SLAM2::MapPoint::nNextId=maxId+1;
     std::vector<MapPoint*> amps=GetAllMapPoints();
-    MapPoint* vmp=amps[0];
-    cout<<vmp->mnId<<endl;
+//    MapPoint* vmp=amps[0];
+//    cout<<vmp->mnId<<endl;
 
     long unsigned int Nkeyframes;
+    maxId=0;
     map<unsigned long int,ConnectInformation> map_connection;
     f.read((char*)&Nkeyframes, sizeof(Nkeyframes));
     cout << "reading " << Nkeyframes << " keyframes" << endl;
     for (unsigned int i=0; i<Nkeyframes; i++) {
         KeyFrame* kf = readKeyFrame(f, voc, amps, &orb_ext,map_connection);
+        if(kf->mnId > maxId)
+           maxId=kf->mnId;
         AddKeyFrame(kf);
     }
+    ORB_SLAM2::KeyFrame::nNextId=maxId+1;
     //Spanning tree
     map<unsigned long int,KeyFrame*> kf_by_id;
     for(KeyFrame* pkf:mspKeyFrames)

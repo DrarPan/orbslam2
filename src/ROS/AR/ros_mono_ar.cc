@@ -44,7 +44,6 @@ bool bRGB = true;
 cv::Mat K;
 cv::Mat DistCoef;
 
-
 class ImageGrabber
 {
 public:
@@ -85,7 +84,6 @@ int main(int argc, char **argv)
     cout << "You can place several cubes in different planes." << endl;
     cout << "-----------------------" << endl;
     cout << endl;
-
 
     viewerAR.SetSLAM(&SLAM);
 

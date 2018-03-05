@@ -31,6 +31,7 @@
 #include<Eigen/StdVector>
 
 #include "Converter.h"
+#include "Camera.h"
 
 #include<mutex>
 
@@ -133,10 +134,10 @@ void Optimizer::BundleAdjustment(const vector<KeyFrame *> &vpKFs, const vector<M
                     rk->setDelta(thHuber2D);
                 }
 
-                e->fx = pKF->fx;
-                e->fy = pKF->fy;
-                e->cx = pKF->cx;
-                e->cy = pKF->cy;
+                e->fx = Camera::fx;//pKF->fx;
+                e->fy = Camera::fy;//pKF->fy;
+                e->cx = Camera::cx;//pKF->cx;
+                e->cy = Camera::cy;//pKF->cy;
 
                 optimizer.addEdge(e);
             }
@@ -162,11 +163,16 @@ void Optimizer::BundleAdjustment(const vector<KeyFrame *> &vpKFs, const vector<M
                     rk->setDelta(thHuber3D);
                 }
 
-                e->fx = pKF->fx;
-                e->fy = pKF->fy;
-                e->cx = pKF->cx;
-                e->cy = pKF->cy;
-                e->bf = pKF->mbf;
+                e->fx = Camera::fx;//pKF->fx;
+                e->fy = Camera::fy;//pKF->fy;
+                e->cx = Camera::cx;//pKF->cx;
+                e->cy = Camera::cy;//pKF->cy;
+                e->bf = Camera::bf;//pKF->mbf;
+//                e->fx = pKF->fx;
+//                e->fy = pKF->fy;
+//                e->cx = pKF->cx;
+//                e->cy = pKF->cy;
+//                e->bf = pKF->mbf;
 
                 optimizer.addEdge(e);
             }
@@ -274,8 +280,7 @@ int Optimizer::PoseOptimization(Frame *pFrame)
     const float deltaStereo = sqrt(7.815);
 
 
-    {
-    unique_lock<mutex> lock(MapPoint::mGlobalMutex);
+    {unique_lock<mutex> lock(MapPoint::mGlobalMutex);
 
     for(int i=0; i<N; i++)
     {
@@ -303,10 +308,11 @@ int Optimizer::PoseOptimization(Frame *pFrame)
                 e->setRobustKernel(rk);
                 rk->setDelta(deltaMono);
 
-                e->fx = pFrame->fx;
-                e->fy = pFrame->fy;
-                e->cx = pFrame->cx;
-                e->cy = pFrame->cy;
+                e->fx = Camera::fx;//pFrame->fx;
+                e->fy = Camera::fy; //pFrame->fy;
+                e->cx = Camera::cx; //pFrame->cx;
+                e->cy = Camera::cy; //pFrame->cy;
+
                 cv::Mat Xw = pMP->GetWorldPos();
                 e->Xw[0] = Xw.at<float>(0);
                 e->Xw[1] = Xw.at<float>(1);
@@ -340,11 +346,11 @@ int Optimizer::PoseOptimization(Frame *pFrame)
                 e->setRobustKernel(rk);
                 rk->setDelta(deltaStereo);
 
-                e->fx = pFrame->fx;
-                e->fy = pFrame->fy;
-                e->cx = pFrame->cx;
-                e->cy = pFrame->cy;
-                e->bf = pFrame->mbf;
+                e->fx = Camera::fx;//pFrame->fx;
+                e->fy = Camera::fy; //pFrame->fy;
+                e->cx = Camera::cx; //pFrame->cx;
+                e->cy = Camera::cy; //pFrame->cy;
+                e->bf = Camera::bf; //pFrame->mbf;
                 cv::Mat Xw = pMP->GetWorldPos();
                 e->Xw[0] = Xw.at<float>(0);
                 e->Xw[1] = Xw.at<float>(1);
@@ -356,9 +362,8 @@ int Optimizer::PoseOptimization(Frame *pFrame)
                 vnIndexEdgeStereo.push_back(i);
             }
         }
-
     }
-    }
+    }//unique_lock<mutex> lock(MapPoint::mGlobalMutex);
 
 
     if(nInitialCorrespondences<3)
@@ -608,10 +613,10 @@ void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool* pbStopFlag, Map* pMap
                     e->setRobustKernel(rk);
                     rk->setDelta(thHuberMono);
 
-                    e->fx = pKFi->fx;
-                    e->fy = pKFi->fy;
-                    e->cx = pKFi->cx;
-                    e->cy = pKFi->cy;
+                    e->fx = Camera::fx;//pKFi->fx;
+                    e->fy = Camera::fy;//pKFi->fy;
+                    e->cx = Camera::cx;//pKFi->cx;
+                    e->cy = Camera::cy;//pKFi->cy;
 
                     optimizer.addEdge(e);
                     vpEdgesMono.push_back(e);
@@ -1056,8 +1061,8 @@ int Optimizer::OptimizeSim3(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &
     optimizer.setAlgorithm(solver);
 
     // Calibration
-    const cv::Mat &K1 = pKF1->mK;
-    const cv::Mat &K2 = pKF2->mK;
+    const cv::Mat &K1 = Camera::K;//pKF1->mK;
+    const cv::Mat &K2 = Camera::K;//pKF2->mK;
 
     // Camera poses
     const cv::Mat R1w = pKF1->GetRotation();

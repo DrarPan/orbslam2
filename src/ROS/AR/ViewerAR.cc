@@ -109,7 +109,6 @@ void ViewerAR::Run()
 
     while(1)
     {
-
         if(menu_LocalizationMode && !bLocalizationMode)
         {
             mpSystem->ActivateLocalizationMode();
@@ -415,7 +414,6 @@ Plane* ViewerAR::DetectPlane(const cv::Mat Tcw, const std::vector<MapPoint*> &vM
     if(N<50)
         return NULL;
 
-
     // Indices for minimum set selection
     vector<size_t> vAllIndices;
     vAllIndices.reserve(N);
@@ -574,7 +572,6 @@ void Plane::Recompute()
     const float ca = up.dot(n);
     const float ang = atan2(sa,ca);
     Tpw = cv::Mat::eye(4,4,CV_32F);
-
 
     Tpw.rowRange(0,3).colRange(0,3) = ExpSO3(v*ang/sa)*ExpSO3(up*rang);
     o.copyTo(Tpw.col(3).rowRange(0,3));

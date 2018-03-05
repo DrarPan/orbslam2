@@ -5,6 +5,7 @@
 using namespace std;
 
 namespace ORB_SLAM2 {
+
 std::string Camera::name;
 float Camera::width=640;
 float Camera::height=480;

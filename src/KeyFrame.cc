@@ -44,7 +44,6 @@ KeyFrame::KeyFrame(Frame &F, Map *pMap, KeyFrameDatabase *pKFDB):
     mbToBeErased(false), mbBad(false), mHalfBaseline(F.mb/2), mpMap(pMap)
 {
     mnId=nNextId++;
-
     mGrid.resize(mnGridCols);
     for(int i=0; i<mnGridCols;i++)
     {

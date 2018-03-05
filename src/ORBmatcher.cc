@@ -26,7 +26,7 @@
 #include<opencv2/features2d/features2d.hpp>
 
 #include "Thirdparty/DBoW2/DBoW2/FeatureVector.h"
-
+#include "Camera.h"
 #include<stdint-gcc.h>
 
 using namespace std;
@@ -666,8 +666,8 @@ int ORBmatcher::SearchForTriangulation(KeyFrame *pKF1, KeyFrame *pKF2, cv::Mat F
     cv::Mat t2w = pKF2->GetTranslation();
     cv::Mat C2 = R2w*Cw+t2w;
     const float invz = 1.0f/C2.at<float>(2);
-    const float ex =pKF2->fx*C2.at<float>(0)*invz+pKF2->cx;
-    const float ey =pKF2->fy*C2.at<float>(1)*invz+pKF2->cy;
+    const float ex =Camera::fx*C2.at<float>(0)*invz+Camera::cx;//pKF2->fx*C2.at<float>(0)*invz+pKF2->cx;
+    const float ey =Camera::fy*C2.at<float>(1)*invz+Camera::cy;//pKF2->fy*C2.at<float>(1)*invz+pKF2->cy
 
     // Find matches between not tracked keypoints
     // Matching speed-up by ORB Vocabulary
@@ -827,11 +827,11 @@ int ORBmatcher::Fuse(KeyFrame *pKF, const vector<MapPoint *> &vpMapPoints, const
     cv::Mat Rcw = pKF->GetRotation();
     cv::Mat tcw = pKF->GetTranslation();
 
-    const float &fx = pKF->fx;
-    const float &fy = pKF->fy;
-    const float &cx = pKF->cx;
-    const float &cy = pKF->cy;
-    const float &bf = pKF->mbf;
+    const float &fx = Camera::fx;//pKF->fx;
+    const float &fy = Camera::fy;//pKF->fy;
+    const float &cx = Camera::cx;//pKF->cx;
+    const float &cy = Camera::cy;//pKF->cy;
+    const float &bf = Camera::bf;//pKF->mbf;
 
     cv::Mat Ow = pKF->GetCameraCenter();
 
@@ -977,10 +977,10 @@ int ORBmatcher::Fuse(KeyFrame *pKF, const vector<MapPoint *> &vpMapPoints, const
 int ORBmatcher::Fuse(KeyFrame *pKF, cv::Mat Scw, const vector<MapPoint *> &vpPoints, float th, vector<MapPoint *> &vpReplacePoint)
 {
     // Get Calibration Parameters for later projection
-    const float &fx = pKF->fx;
-    const float &fy = pKF->fy;
-    const float &cx = pKF->cx;
-    const float &cy = pKF->cy;
+    const float &fx = Camera::fx;//pKF->fx;
+    const float &fy = Camera::fy;//pKF->fy;
+    const float &cx = Camera::cx;//pKF->cx;
+    const float &cy = Camera::cy;//pKF->cy;
 
     // Decompose Scw
     cv::Mat sRcw = Scw.rowRange(0,3).colRange(0,3);
@@ -1102,10 +1102,10 @@ int ORBmatcher::Fuse(KeyFrame *pKF, cv::Mat Scw, const vector<MapPoint *> &vpPoi
 int ORBmatcher::SearchBySim3(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint*> &vpMatches12,
                              const float &s12, const cv::Mat &R12, const cv::Mat &t12, const float th)
 {
-    const float &fx = pKF1->fx;
-    const float &fy = pKF1->fy;
-    const float &cx = pKF1->cx;
-    const float &cy = pKF1->cy;
+    const float &fx = Camera::fx;//pKF1->fx;
+    const float &fy = Camera::fy;//pKF1->fy;
+    const float &cx = Camera::cx;//pKF1->cx;
+    const float &cy = Camera::cy;//pKF1->cy;
 
     // Camera 1 from world
     cv::Mat R1w = pKF1->GetRotation();

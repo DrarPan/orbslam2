@@ -34,6 +34,7 @@
 #include "ORBVocabulary.h"
 #include"KeyFrameDatabase.h"
 #include"ORBextractor.h"
+#include "ORBmatcher.h"
 #include "Initializer.h"
 #include "MapDrawer.h"
 #include "System.h"
@@ -49,6 +50,7 @@ class Map;
 class LocalMapping;
 class LoopClosing;
 class System;
+class ORBmatcher;
 
 class Tracking
 {  
@@ -83,7 +85,8 @@ public:
         NO_IMAGES_YET=0,
         NOT_INITIALIZED=1,
         OK=2,
-        LOST=3
+        LOST=3,
+        INITIALIZED_LOST=4 //The lost from loading map
     };
 
     eTrackingState mState;
@@ -214,6 +217,9 @@ protected:
     bool mbRGB;
 
     list<MapPoint*> mlpTemporalPoints;
+
+    // ORBMa
+    ORBmatcher mORBmatcher;
 };
 
 } //namespace ORB_SLAM

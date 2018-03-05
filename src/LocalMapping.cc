@@ -22,6 +22,7 @@
 #include "LoopClosing.h"
 #include "ORBmatcher.h"
 #include "Optimizer.h"
+#include "Camera.h"
 
 #include<mutex>
 
@@ -46,7 +47,6 @@ void LocalMapping::SetTracker(Tracking *pTracker)
 
 void LocalMapping::Run()
 {
-
     mbFinished = false;
 
     while(1)
@@ -248,8 +248,8 @@ void LocalMapping::CreateNewMapPoints()
 
         if(!mbMonocular)
         {
-            if(baseline<pKF2->mb)
-            continue;
+            if(baseline<Camera::b)//pKF2->mb)
+                continue;
         }
         else
         {
@@ -309,9 +309,9 @@ void LocalMapping::CreateNewMapPoints()
             float cosParallaxStereo2 = cosParallaxStereo;
 
             if(bStereo1)
-                cosParallaxStereo1 = cos(2*atan2(mpCurrentKeyFrame->mb/2,mpCurrentKeyFrame->mvDepth[idx1]));
+                cosParallaxStereo1 = cos(2*atan2(Camera::b/2,mpCurrentKeyFrame->mvDepth[idx1])); //cos(2*atan2(mpCurrentKeyFrame->mb/2,mpCurrentKeyFrame->mvDepth[idx1]));
             else if(bStereo2)
-                cosParallaxStereo2 = cos(2*atan2(pKF2->mb/2,pKF2->mvDepth[idx2]));
+                cosParallaxStereo2 = cos(2*atan2(Camera::b/2,pKF2->mvDepth[idx2]));//cos(2*atan2(pKF2->mb/2,pKF2->mvDepth[idx2]));
 
             cosParallaxStereo = min(cosParallaxStereo1,cosParallaxStereo2);
 
@@ -545,9 +545,8 @@ cv::Mat LocalMapping::ComputeF12(KeyFrame *&pKF1, KeyFrame *&pKF2)
 
     cv::Mat t12x = SkewSymmetricMatrix(t12);
 
-    const cv::Mat &K1 = pKF1->mK;
-    const cv::Mat &K2 = pKF2->mK;
-
+    const cv::Mat &K1 = Camera::K;//pKF1->mK;
+    const cv::Mat &K2 = Camera::K;//pKF2->mK;//loading mk is empty?
 
     return K1.t().inv()*t12x*R12*K2.inv();
 }

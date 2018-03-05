@@ -29,6 +29,7 @@
 #include "ORBmatcher.h"
 
 #include "Thirdparty/DBoW2/DUtils/Random.h"
+#include "Camera.h"
 
 namespace ORB_SLAM2
 {
@@ -102,8 +103,8 @@ Sim3Solver::Sim3Solver(KeyFrame *pKF1, KeyFrame *pKF2, const vector<MapPoint *> 
         }
     }
 
-    mK1 = pKF1->mK;
-    mK2 = pKF2->mK;
+    mK1 = Camera::K;//pKF1->mK;
+    mK2 = Camera::K;//pKF2->mK;
 
     FromCameraToImage(mvX3Dc1,mvP1im1,mK1);
     FromCameraToImage(mvX3Dc2,mvP2im2,mK2);
@@ -383,10 +384,10 @@ void Sim3Solver::Project(const vector<cv::Mat> &vP3Dw, vector<cv::Mat> &vP2D, cv
 {
     cv::Mat Rcw = Tcw.rowRange(0,3).colRange(0,3);
     cv::Mat tcw = Tcw.rowRange(0,3).col(3);
-    const float &fx = K.at<float>(0,0);
-    const float &fy = K.at<float>(1,1);
-    const float &cx = K.at<float>(0,2);
-    const float &cy = K.at<float>(1,2);
+    const float &fx = Camera::fx;
+    const float &fy = Camera::fy;
+    const float &cx = Camera::cx;
+    const float &cy = Camera::cy;
 
     vP2D.clear();
     vP2D.reserve(vP3Dw.size());
@@ -404,10 +405,10 @@ void Sim3Solver::Project(const vector<cv::Mat> &vP3Dw, vector<cv::Mat> &vP2D, cv
 
 void Sim3Solver::FromCameraToImage(const vector<cv::Mat> &vP3Dc, vector<cv::Mat> &vP2D, cv::Mat K)
 {
-    const float &fx = K.at<float>(0,0);
-    const float &fy = K.at<float>(1,1);
-    const float &cx = K.at<float>(0,2);
-    const float &cy = K.at<float>(1,2);
+    const float &fx = Camera::fx;
+    const float &fy = Camera::fy;
+    const float &cx = Camera::cx;
+    const float &cy = Camera::cy;
 
     vP2D.clear();
     vP2D.reserve(vP3Dc.size());

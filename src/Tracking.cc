@@ -48,10 +48,19 @@ namespace ORB_SLAM2
 Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawer, Map *pMap, KeyFrameDatabase* pKFDB, const string &strSettingPath, const int sensor):
     mState(NO_IMAGES_YET), mSensor(sensor), mbOnlyTracking(false), mbVO(false), mpORBVocabulary(pVoc),
     mpKeyFrameDB(pKFDB), mpInitializer(static_cast<Initializer*>(NULL)), mpSystem(pSys), mpViewer(NULL),
-    mpFrameDrawer(pFrameDrawer), mpMapDrawer(pMapDrawer), mpMap(pMap), mnLastRelocFrameId(0)
+    mpFrameDrawer(pFrameDrawer), mpMapDrawer(pMapDrawer), mpMap(pMap), mnLastRelocFrameId(0),mORBmatcher()
 {
-    // Load camera parameters from settings file
+    // If a previous map has already exist, we should switch the status to LOST for relocalization
+    // mState=NO_IMAGES_YET;
+    if(pMap->KeyFramesInMap()==0){
+        mState=NO_IMAGES_YET;
+    }else{
+        mState=INITIALIZED_LOST;
+        vector<KeyFrame*> akf=pMap->GetAllKeyFrames();
+        mpReferenceKF=akf[0];
+    }
 
+    // Load camera parameters from settings file
     cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
     if(Camera::initialized){
         Camera::K.copyTo(mK);
@@ -298,7 +307,7 @@ void Tracking::Track()
         {
             // Localization Mode: Local Mapping is deactivated
 
-            if(mState==LOST)
+            if(mState==LOST || mState==INITIALIZED_LOST)
             {
                 bOK = Relocalization();
             }
@@ -364,7 +373,7 @@ void Tracking::Track()
                     bOK = bOKReloc || bOKMM;
                 }
             }
-        }
+        }//mState!=NOT_INITIALIZED
 
         mCurrentFrame.mpReferenceKF = mpReferenceKF;
 
@@ -385,7 +394,7 @@ void Tracking::Track()
 
         if(bOK)
             mState = OK;
-        else
+        else if(mState!=INITIALIZED_LOST)
             mState=LOST;
 
         // Update drawer
@@ -419,7 +428,7 @@ void Tracking::Track()
                     }
             }
 
-            // Delete temporal MapPoints
+            // Delete mlbLosttemporal MapPoints
             for(list<MapPoint*>::iterator lit = mlpTemporalPoints.begin(), lend =  mlpTemporalPoints.end(); lit!=lend; lit++)
             {
                 MapPoint* pMP = *lit;
@@ -428,8 +437,9 @@ void Tracking::Track()
             mlpTemporalPoints.clear();
 
             // Check if we need to insert a new keyframe
-            if(NeedNewKeyFrame())
+            if(NeedNewKeyFrame()){
                 CreateNewKeyFrame();
+            }
 
             // We allow points with high innovation (considererd outliers by the Huber Function)
             // pass to the new keyframe, so that bundle adjustment will finally decide
@@ -460,23 +470,24 @@ void Tracking::Track()
     }
 
     // Store frame pose information to retrieve the complete camera trajectory afterwards.
-    if(!mCurrentFrame.mTcw.empty())
-    {
-        cv::Mat Tcr = mCurrentFrame.mTcw*mCurrentFrame.mpReferenceKF->GetPoseInverse();
-        mlRelativeFramePoses.push_back(Tcr);
-        mlpReferences.push_back(mpReferenceKF);
-        mlFrameTimes.push_back(mCurrentFrame.mTimeStamp);
-        mlbLost.push_back(mState==LOST);
+    if(mState!=INITIALIZED_LOST){//We don't need to store any information before initialized relocalization
+        if(!mCurrentFrame.mTcw.empty())
+        {
+            cv::Mat Tcr = mCurrentFrame.mTcw*mCurrentFrame.mpReferenceKF->GetPoseInverse();
+            mlRelativeFramePoses.push_back(Tcr);
+            mlpReferences.push_back(mpReferenceKF);
+            mlFrameTimes.push_back(mCurrentFrame.mTimeStamp);
+            mlbLost.push_back(mState==LOST);
+        }
+        else
+        {
+            // This can happen if tracking is lost
+            mlRelativeFramePoses.push_back(mlRelativeFramePoses.back());
+            mlpReferences.push_back(mlpReferences.back());
+            mlFrameTimes.push_back(mlFrameTimes.back());
+            mlbLost.push_back(mState==LOST);
+        }
     }
-    else
-    {
-        // This can happen if tracking is lost
-        mlRelativeFramePoses.push_back(mlRelativeFramePoses.back());
-        mlpReferences.push_back(mlpReferences.back());
-        mlFrameTimes.push_back(mlFrameTimes.back());
-        mlbLost.push_back(mState==LOST);
-    }
-
 }
 
 
@@ -536,7 +547,6 @@ void Tracking::StereoInitialization()
 
 void Tracking::MonocularInitialization()
 {
-
     if(!mpInitializer)
     {
         // Set Reference Frame
@@ -1520,7 +1530,6 @@ void Tracking::Reset()
     mlpReferences.clear();
     mlFrameTimes.clear();
     mlbLost.clear();
-
     if(mpViewer)
         mpViewer->Release();
 }

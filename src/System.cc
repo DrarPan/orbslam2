@@ -77,10 +77,14 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     mpKeyFrameDatabase = new KeyFrameDatabase(*mpVocabulary);
 
     //Create a Map or Load a Map
-    if(pmap==NULL)
+    if(pmap==NULL){
         mpMap = new Map();
-    else
+    }else{
         mpMap = pmap;
+        for(KeyFrame* kf: pmap->GetAllKeyFrames())
+            mpKeyFrameDatabase->add(kf);
+    }
+
 
     //Create Drawers. These are used by the Viewer
     mpFrameDrawer = new FrameDrawer(mpMap);
@@ -157,11 +161,13 @@ System::System(const string &strSettingsFile, const System::eSensor sensor, ORBV
     mpKeyFrameDatabase = new KeyFrameDatabase(*mpVocabulary);
 
     //Create a Map or Load a Map
-    if(pmap==NULL)
+    if(pmap==NULL){
         mpMap = new Map();
-    else
+    }else{
         mpMap = pmap;
-
+        for(KeyFrame* kf: pmap->GetAllKeyFrames())
+            mpKeyFrameDatabase->add(kf);
+    }
     //Create Drawers. These are used by the Viewer
     mpFrameDrawer = new FrameDrawer(mpMap);
     mpMapDrawer = new MapDrawer(mpMap, strSettingsFile);

@@ -82,11 +82,9 @@ int main(int argc, char **argv)
     ros::spin();
 
     // Stop all threads
-
-
-    // Save camera trajectory
     SLAM.Shutdown();
 
+    // Save camera trajectory
     SLAM.SaveKeyFrameTrajectoryTUM(ros::package::getPath("orbslam2")+"/map/KeyFrameTrajectory.txt");
     SLAM.SaveMap(ros::package::getPath("orbslam2")+"/map/map.bin");
 
@@ -120,5 +118,6 @@ void ImageGrabber::GrabRGBD(const sensor_msgs::ImageConstPtr& msgRGB,const senso
         return;
     }
 
-    mpSLAM->TrackRGBD(cv_ptrRGB->image,cv_ptrD->image,cv_ptrRGB->header.stamp.toSec());
+    cv::Mat Twc=mpSLAM->TrackRGBD(cv_ptrRGB->image,cv_ptrD->image,cv_ptrRGB->header.stamp.toSec());
+    cout<<Twc<<endl;
 }

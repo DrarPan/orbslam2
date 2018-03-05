@@ -145,7 +145,7 @@ void FrameDrawer::DrawTextInfo(cv::Mat &im, int nState, cv::Mat &imText)
         if(mnTrackedVO>0)
             s << ", + VO matches: " << mnTrackedVO;
     }
-    else if(nState==Tracking::LOST)
+    else if(nState==Tracking::LOST || nState==Tracking::INITIALIZED_LOST)
     {
         s << " TRACK LOST. TRYING TO RELOCALIZE ";
     }
