@@ -11,3 +11,4 @@
 *.so
 *.a
 *Desktop_Qt_5_7_0_GCC*
+!CMakeLists.txt
