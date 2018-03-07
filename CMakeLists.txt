@@ -18,7 +18,7 @@ include_directories("/usr/include/qt4/Qt")
 find_package(catkin REQUIRED roscpp roslib tf geometry_msgs cv_bridge message_filters image_transport)
 find_package(OpenGL REQUIRED)
 
-include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${Pangolin_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS})
+include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${catkin_INCLUDE_DIRS} ${Pangolin_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS})
 
 catkin_package()
 
