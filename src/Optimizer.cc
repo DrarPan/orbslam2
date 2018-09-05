@@ -168,11 +168,6 @@ void Optimizer::BundleAdjustment(const vector<KeyFrame *> &vpKFs, const vector<M
                 e->cx = Camera::cx;//pKF->cx;
                 e->cy = Camera::cy;//pKF->cy;
                 e->bf = Camera::bf;//pKF->mbf;
-//                e->fx = pKF->fx;
-//                e->fy = pKF->fy;
-//                e->cx = pKF->cx;
-//                e->cy = pKF->cy;
-//                e->bf = pKF->mbf;
 
                 optimizer.addEdge(e);
             }
@@ -364,7 +359,6 @@ int Optimizer::PoseOptimization(Frame *pFrame)
         }
     }
     }//unique_lock<mutex> lock(MapPoint::mGlobalMutex);
-
 
     if(nInitialCorrespondences<3)
         return 0;

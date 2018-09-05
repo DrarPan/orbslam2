@@ -53,6 +53,8 @@ public:
     cv::Mat GetStereoCenter();
     cv::Mat GetRotation();
     cv::Mat GetTranslation();
+    KeyFrameDatabase* GetKeyFrameDatabase();
+    void SetKeyFrameDatabase(KeyFrameDatabase *pdatabase);
 
     // Bag of Words Representation
     void ComputeBoW();

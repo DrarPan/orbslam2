@@ -119,6 +119,13 @@ cv::Mat KeyFrame::GetTranslation()
     return Tcw.rowRange(0,3).col(3).clone();
 }
 
+KeyFrameDatabase* KeyFrame::GetKeyFrameDatabase(){
+    return mpKeyFrameDB;
+}
+void KeyFrame::SetKeyFrameDatabase(KeyFrameDatabase* pdatabase){
+    mpKeyFrameDB = pdatabase;
+}
+
 void KeyFrame::AddConnection(KeyFrame *pKF, const int &weight)
 {
     {

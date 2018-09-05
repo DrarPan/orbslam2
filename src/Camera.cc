@@ -22,7 +22,6 @@ cv::Mat Camera::DistCoef=cv::Mat::zeros(4,1,CV_32F);
 float Camera::depthFactor=1.0;
 bool Camera::initialized=false;
 
-
 bool Camera::load(cv::FileStorage fSettings){
     width = fSettings["Camera.width"];
     height = fSettings["Camera.height"];
