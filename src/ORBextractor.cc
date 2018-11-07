@@ -500,10 +500,8 @@ vector<cv::KeyPoint> ORBextractor::DistributeOctTree(const vector<cv::KeyPoint>&
                 maxResponse = vNodeKeys[k].response;
             }
         }
-
         vResultKeys.push_back(*pKP);
     }
-
     return vResultKeys;
 }
 

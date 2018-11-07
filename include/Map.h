@@ -73,10 +73,11 @@ public:
     std::mutex mMutexPointCreation;
 
     //function of map saving
-    void writeKeyFrame(ofstream &f, KeyFrame* kf, map<MapPoint *, unsigned long> &mp_idx);
+    void writeKeyFrame(ofstream &f, KeyFrame *kf,std::map<MapPoint*,unsigned long int>& mp_idx,bool remove_bad_frame=true);
     void writeMapPoint(ofstream &f, MapPoint* mp);
     KeyFrame* readKeyFrame(ifstream &f, ORBVocabulary &voc, std::vector<MapPoint *> &amp, ORBextractor* orb_ext, map<unsigned long, ConnectInformation> &map_connection);
     MapPoint* readMapPoint(ifstream &f);
+    vector<KeyFrame *> GetAllGoodKeyFrames();
 
     bool save(const string &filename);
     bool load(const string &filename, ORBVocabulary &voc);

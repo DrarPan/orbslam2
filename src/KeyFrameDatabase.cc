@@ -191,8 +191,6 @@ vector<KeyFrame*> KeyFrameDatabase::DetectLoopCandidates(KeyFrame* pKF, float mi
             }
         }
     }
-
-
     return vpLoopCandidates;
 }
 

@@ -34,6 +34,8 @@ Map::Map():mnMaxKFid(0),mnBigChangeIdx(0)
 void Map::AddKeyFrame(KeyFrame *pKF)
 {
     unique_lock<mutex> lock(mMutexMap);
+    //cout<<"Add mnId: "<<pKF->mnId<<endl;
+
     mspKeyFrames.insert(pKF);
     if(pKF->mnId>mnMaxKFid)
         mnMaxKFid=pKF->mnId;
@@ -87,6 +89,16 @@ vector<KeyFrame*> Map::GetAllKeyFrames()
     return vector<KeyFrame*>(mspKeyFrames.begin(),mspKeyFrames.end());
 }
 
+vector<KeyFrame*> Map::GetAllGoodKeyFrames(){
+    unique_lock<mutex> lock(mMutexMap);
+    vector<KeyFrame*> vpgoodKF;
+    for(set<KeyFrame*>::iterator it=mspKeyFrames.begin();it!=mspKeyFrames.end();it++){
+        if(!(*it)->isBad())
+            vpgoodKF.push_back(*it);
+    }
+    return vpgoodKF;
+}
+
 vector<MapPoint*> Map::GetAllMapPoints()
 {
     unique_lock<mutex> lock(mMutexMap);
@@ -132,7 +144,7 @@ void Map::clear()
     mvpKeyFrameOrigins.clear();
 }
 
-void Map::writeKeyFrame(ofstream &f, KeyFrame *kf,map<MapPoint*,unsigned long int>& mp_idx){
+void Map::writeKeyFrame(ofstream &f, KeyFrame *kf,map<MapPoint*,unsigned long int>& mp_idx,bool remove_bad_frame){
     //KeyFrame
     f.write((char*)&kf->mnId,sizeof(kf->mnId));
     f.write((char*)&kf->mTimeStamp,sizeof(kf->mTimeStamp));
@@ -175,13 +187,30 @@ void Map::writeKeyFrame(ofstream &f, KeyFrame *kf,map<MapPoint*,unsigned long in
     if(parent!=NULL)
         parent_id = parent->mnId;
     f.write((char*)&parent_id,sizeof(parent_id));
-    unsigned long int Nconnection = kf->GetConnectedKeyFrames().size();
-    f.write((char*)&Nconnection,sizeof(Nconnection));
-    for(KeyFrame* ckf:kf->GetConnectedKeyFrames()){//connection_num times
-        long unsigned int id=ckf->mnId;
-        int weight=kf->GetWeight(ckf);
-        f.write((char*)&id, sizeof(id));
-        f.write((char*)&weight, sizeof(weight));
+
+    if(!remove_bad_frame){
+        unsigned long int Nconnection = kf->GetConnectedKeyFrames().size();
+        f.write((char*)&Nconnection,sizeof(Nconnection));
+        for(KeyFrame* ckf:kf->GetConnectedKeyFrames()){//connection_num times
+            long unsigned int id=ckf->mnId;
+            int weight=kf->GetWeight(ckf);
+            f.write((char*)&id, sizeof(id));
+            f.write((char*)&weight, sizeof(weight));
+        }
+    }else{
+        unsigned long int Nconnection = 0;
+        vector<pair<unsigned long int,int> > good_connection;
+        for(KeyFrame* ckf:kf->GetConnectedKeyFrames()){
+            if(ckf && mspKeyFrames.count(ckf)){//sometimes keyframes of connection are not in mspKeyFrames
+                good_connection.push_back(make_pair(ckf->mnId,kf->GetWeight(ckf)));
+                Nconnection++;
+            }
+        }
+        f.write((char*)&Nconnection,sizeof(Nconnection));
+        for(pair<unsigned long int,int> p:good_connection){
+            f.write((char*)(&p.first),sizeof(unsigned long int));
+            f.write((char*)(&p.second),sizeof(int));
+        }
     }
 }
 
@@ -321,6 +350,8 @@ bool Map::load(const string &filename,ORBVocabulary &voc){
     ifstream f;
     cout<<"loading map from "<<filename<<endl;
     f.open(filename.c_str(), ios_base::in|ios::binary);
+    if(!f.is_open())
+        return false;
     unsigned long int Nmappoint,maxId=0;
 
     f.read((char*)&Nmappoint,sizeof(Nmappoint));
@@ -331,6 +362,7 @@ bool Map::load(const string &filename,ORBVocabulary &voc){
             maxId=mp->mnId;
         AddMapPoint(mp);
     }
+
     ORB_SLAM2::MapPoint::nNextId=maxId+1;
     std::vector<MapPoint*> amps=GetAllMapPoints();
 //    MapPoint* vmp=amps[0];
@@ -354,14 +386,23 @@ bool Map::load(const string &filename,ORBVocabulary &voc){
         kf_by_id[pkf->mnId]=pkf;
     for(map<unsigned long int,KeyFrame*>::iterator it=kf_by_id.begin();it!=kf_by_id.end();it++){
         ConnectInformation conn_info=map_connection[it->first];
-        if(conn_info.parent_id!=ULONG_MAX)
+        if(conn_info.parent_id!=ULONG_MAX){
+            if(kf_by_id.find(conn_info.parent_id)==kf_by_id.end()){
+                cerr<<"Bad parent"<<endl;
+                continue;
+            }
             it->second->ChangeParent(kf_by_id[conn_info.parent_id]);
+        }
         for(unsigned long int i=0;i<conn_info.connect_id.size();i++){
+            if(kf_by_id.find(conn_info.connect_id[i])==kf_by_id.end()){
+                clog<<"Bad connection to KeyFrame with ID "<<conn_info.connect_id[i]<<endl;
+                continue;
+            }
             it->second->AddConnection(kf_by_id[conn_info.connect_id[i]],conn_info.weight[i]);
         }
     }
 
-    for(MapPoint* mp: amps) {
+    for(MapPoint* mp: amps){
         mp->ComputeDistinctiveDescriptors();
         mp->UpdateNormalAndDepth();
     }
